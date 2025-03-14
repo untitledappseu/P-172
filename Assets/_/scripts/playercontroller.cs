@@ -14,6 +14,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float groundCheckRadius = 0.2f;
     [SerializeField] private LayerMask groundLayer;
 
+    [Header("Audio")]
+    [SerializeField] private float footstepRate = 0.3f;
+    [SerializeField] private float sprintFootstepRateMultiplier = 1.5f;
+    [SerializeField] private float minLandingVelocity = 5f;
+    [SerializeField] private float hardLandingVelocity = 10f; // Threshold for hard landing sounds
+    [SerializeField] private bool debugAudio = true; // Toggle for audio debugging
+
     // Component references
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
@@ -22,8 +29,10 @@ public class PlayerController : MonoBehaviour
     // State variables
     private float horizontalInput;
     private bool isGrounded;
+    private bool wasGrounded;
     private bool isJumping;
     private bool isSprinting;
+    private float footstepTimer;
 
     // Animation parameter names
     private readonly string isRunningParam = "IsRunning";
@@ -47,6 +56,24 @@ public class PlayerController : MonoBehaviour
             checkObj.transform.localPosition = new Vector3(0, -0.5f, 0);
             groundCheck = checkObj.transform;
         }
+
+        if (debugAudio)
+        {
+            Debug.Log("PlayerController initialized with audio debugging enabled");
+        }
+    }
+
+    private void Start()
+    {
+        // Check if AudioManager exists
+        if (AudioManager.Instance == null)
+        {
+            Debug.LogError("PlayerController: AudioManager not found! Footsteps and landing sounds won't work.");
+        }
+        else if (debugAudio)
+        {
+            Debug.Log("PlayerController: AudioManager found successfully");
+        }
     }
 
     private void Update()
@@ -55,8 +82,17 @@ public class PlayerController : MonoBehaviour
         horizontalInput = Input.GetAxisRaw("Horizontal");
         isSprinting = Input.GetKey(KeyCode.LeftShift);
 
+        // Store previous ground state
+        wasGrounded = isGrounded;
+
         // Check if player is on the ground
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+
+        // Check for landing
+        if (isGrounded && !wasGrounded)
+        {
+            OnLanding();
+        }
 
         // Jump when the jump button is pressed and the player is grounded
         if (Input.GetButtonDown("Jump") && isGrounded)
@@ -66,6 +102,9 @@ public class PlayerController : MonoBehaviour
 
         // Update animations
         UpdateAnimations();
+
+        // Handle footstep sounds
+        UpdateFootsteps();
 
         // Flip sprite based on movement direction
         if (horizontalInput > 0)
@@ -110,6 +149,37 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void OnLanding()
+    {
+        // Play landing sound if we had significant downward velocity
+        if (rb.velocity.y < -minLandingVelocity && AudioManager.Instance != null)
+        {
+            // Adjust volume based on landing velocity
+            float landingVolume = Mathf.Clamp01(Mathf.Abs(rb.velocity.y) / 20f);
+
+            // Use different sound type for hard landings
+            SoundType landingType = SoundType.PlayerLanding;
+
+            if (debugAudio)
+            {
+                Debug.Log($"PlayerController: Playing landing sound. Velocity: {rb.velocity.y}, Volume: {landingVolume}");
+            }
+
+            AudioManager.Instance.PlaySound(landingType, transform.position, landingVolume);
+        }
+        else if (debugAudio)
+        {
+            if (AudioManager.Instance == null)
+            {
+                Debug.LogWarning("PlayerController: Can't play landing sound - AudioManager not found");
+            }
+            else if (rb.velocity.y >= -minLandingVelocity)
+            {
+                Debug.Log($"PlayerController: Landing velocity too low for sound: {rb.velocity.y} (min: {-minLandingVelocity})");
+            }
+        }
+    }
+
     private void UpdateAnimations()
     {
         if (animator != null)
@@ -125,6 +195,54 @@ public class PlayerController : MonoBehaviour
 
             // Set falling animation
             animator.SetBool(isFallingParam, !isGrounded && rb.velocity.y < 0);
+        }
+    }
+
+    private void UpdateFootsteps()
+    {
+        bool isMoving = Mathf.Abs(horizontalInput) > 0.1f;
+
+        // Only play footsteps when moving on the ground
+        if (isGrounded && isMoving && AudioManager.Instance != null)
+        {
+            // Calculate footstep rate based on sprint state
+            float currentFootstepRate = footstepRate;
+            if (isSprinting)
+            {
+                currentFootstepRate /= sprintFootstepRateMultiplier;
+            }
+
+            // Update footstep timer
+            footstepTimer -= Time.deltaTime;
+            if (footstepTimer <= 0)
+            {
+                // Play footstep sound
+                if (debugAudio)
+                {
+                    Debug.Log($"PlayerController: Playing footstep sound. Moving: {isMoving}, Grounded: {isGrounded}, Sprint: {isSprinting}");
+                }
+
+                AudioManager.Instance.PlaySound(SoundType.PlayerFootstep, transform.position);
+                footstepTimer = currentFootstepRate;
+            }
+        }
+        else
+        {
+            // Reset timer when not moving or not on ground
+            footstepTimer = 0;
+
+            if (debugAudio && isMoving && !isGrounded)
+            {
+                Debug.Log("PlayerController: Not playing footsteps - player is not grounded");
+            }
+            else if (debugAudio && !isMoving && isGrounded)
+            {
+                Debug.Log("PlayerController: Not playing footsteps - player is not moving");
+            }
+            else if (debugAudio && AudioManager.Instance == null)
+            {
+                Debug.LogWarning("PlayerController: Can't play footsteps - AudioManager not found");
+            }
         }
     }
 
