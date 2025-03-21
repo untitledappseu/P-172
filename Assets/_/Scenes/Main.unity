@@ -2019,7 +2019,11 @@ MonoBehaviour:
     - {fileID: 8300000, guid: ac273db616c3344f4b275a6f3bc4ac4e, type: 3}
     - {fileID: 8300000, guid: a14da5f34db1e4725aa003f941343992, type: 3}
     - {fileID: 8300000, guid: b247ac2f0a1ee4d2cb2dc22d83b32159, type: 3}
-    volume: 5
+    - {fileID: 8300000, guid: ef94763e1f3644631a3b1f67e5b6d817, type: 3}
+    - {fileID: 8300000, guid: ef94763e1f3644631a3b1f67e5b6d817, type: 3}
+    - {fileID: 8300000, guid: 6e42fa82646294e82aac627e3fe32f96, type: 3}
+    - {fileID: 8300000, guid: 6f5093b079f8d4ed5a5f45c62712e798, type: 3}
+    volume: 1
     pitchVariation: 0.052
   - type: 3
     clips:
