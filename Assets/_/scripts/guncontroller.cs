@@ -12,7 +12,11 @@ public class GunController : MonoBehaviour
     [Header("Visual Settings")]
     [SerializeField] private bool flipWithPlayer = true;
     [SerializeField] private float gunOffset = 0.5f;
+    [SerializeField] private float rightGunOffset = 0.5f;
+    [SerializeField] private float leftGunOffset = 0.5f;
     [SerializeField] private GameObject cooldownIndicator;
+    [SerializeField] private bool followMovementDirection = true;
+    [SerializeField] private float rotationSpeed = 10f;
 
     // References
     private Camera mainCamera;
@@ -25,6 +29,7 @@ public class GunController : MonoBehaviour
     private Vector3 mousePosition;
     private Vector3 aimDirection;
     private float angle;
+    private float targetAngle;
 
     private void Awake()
     {
@@ -45,6 +50,11 @@ public class GunController : MonoBehaviour
             firePointObj.transform.localPosition = new Vector3(0.5f, 0f, 0f);
             firePoint = firePointObj.transform;
         }
+        else
+        {
+            // Make sure firePoint is correctly positioned
+            firePoint.localPosition = new Vector3(0.5f, 0f, 0f);
+        }
 
         // Initialize cooldown indicator if assigned
         if (cooldownIndicator != null)
@@ -59,28 +69,72 @@ public class GunController : MonoBehaviour
         mousePosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         mousePosition.z = 0f;
 
-        // Calculate aim direction and angle
-        aimDirection = (mousePosition - transform.position).normalized;
-        angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
+        // Get movement input
+        float horizontalInput = Input.GetAxisRaw("Horizontal");
 
-        // Rotate gun towards mouse
-        transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        // Set direct position based on movement or mouse
+        Vector3 newPosition = Vector3.zero;
+        bool facingLeft = false;
 
-        // Handle gun flipping based on player direction
-        if (flipWithPlayer && playerSpriteRenderer != null && gunSpriteRenderer != null)
+        // Position the gun based on movement direction first
+        if (followMovementDirection && Mathf.Abs(horizontalInput) > 0.1f)
         {
-            // If player is facing left, flip the gun vertically
-            if (playerSpriteRenderer.flipX)
+            facingLeft = horizontalInput < 0;
+
+            if (facingLeft)
+            {
+                // Moving left
+                targetAngle = 180;
+                newPosition = new Vector3(-leftGunOffset, 0f, 0f);
+            }
+            else
+            {
+                // Moving right
+                targetAngle = 0;
+                newPosition = new Vector3(rightGunOffset, 0f, 0f);
+            }
+        }
+        else
+        {
+            // Use mouse position for aiming
+            aimDirection = (mousePosition - transform.position).normalized;
+            float mouseAngle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
+            targetAngle = mouseAngle;
+
+            // Determine facing based on mouse angle
+            facingLeft = (targetAngle > 90 || targetAngle < -90);
+
+            if (facingLeft)
+            {
+                newPosition = new Vector3(-leftGunOffset, 0f, 0f);
+            }
+            else
+            {
+                newPosition = new Vector3(rightGunOffset, 0f, 0f);
+            }
+        }
+
+        // Apply the position directly
+        transform.localPosition = newPosition;
+
+        // Apply scaling based on direction
+        if (flipWithPlayer && gunSpriteRenderer != null)
+        {
+            if (facingLeft)
             {
                 transform.localScale = new Vector3(1f, -1f, 1f);
-                transform.localPosition = new Vector3(gunOffset, -gunOffset, 0f);
             }
             else
             {
                 transform.localScale = Vector3.one;
-                transform.localPosition = new Vector3(gunOffset, gunOffset, 0f);
             }
         }
+
+        // Smoothly rotate towards target angle
+        angle = Mathf.LerpAngle(angle, targetAngle, Time.deltaTime * rotationSpeed);
+
+        // Apply rotation
+        transform.rotation = Quaternion.Euler(0f, 0f, angle);
 
         // Handle cooldown timer
         if (!canShoot)
