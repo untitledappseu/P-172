@@ -7,8 +7,10 @@ using UnityEditor;
 
 public class EnemyController : MonoBehaviour
 {
-    [Header("Enemy Type")]
+    // Enemy Type enum definition
     public enum EnemyType { Dinosaur, Ama, Lumen }
+
+    [Header("Enemy Type")]
     [SerializeField] private EnemyType enemyType = EnemyType.Dinosaur;
 
     [Header("Movement Settings")]
@@ -376,7 +378,12 @@ public class EnemyController : MonoBehaviour
         if (animator == null)
             return;
 
-        // Only set the enemy type parameter
+        // Set animations based on state and movement
+        animator.SetBool("IsMoving", Mathf.Abs(moveDirection.x) > 0.1f);
+        animator.SetBool("IsChasing", currentState == EnemyState.Chasing);
+        animator.SetBool("IsAttacking", currentState == EnemyState.Attacking);
+
+        // Make sure the enemy type is set
         animator.SetInteger("EnemyType", (int)enemyType);
     }
 
@@ -465,19 +472,6 @@ public class EnemyController : MonoBehaviour
             Gizmos.color = attackRangeColor;
             Gizmos.DrawWireSphere(transform.position, attackRange);
         }
-    }
-
-    // Public method to check if gun can shoot (useful for UI or other systems)
-    public bool CanShoot()
-    {
-        return canShoot;
-    }
-
-    // Public method to get cooldown progress (0 to 1, where 1 is ready to shoot)
-    public float GetCooldownProgress()
-    {
-        if (canShoot) return 1f;
-        return 1f - (cooldownTimer / cooldownTime);
     }
 
     // Public method to get the enemy type
