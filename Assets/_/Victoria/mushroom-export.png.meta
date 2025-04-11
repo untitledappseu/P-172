@@ -1,9 +1,5 @@
 fileFormatVersion: 2
-<<<<<<<< HEAD:Assets/_/Victoria/Lumeneater_Walkcycle 2.png.meta
-guid: 224aa5e42f2294d22ab51e8ebc47bc44
-========
-guid: e9281543ef0d1054cac56cea19a2ffb8
->>>>>>>> e0fd404aa99ed8ae3a234f15527691082dd06a00:Assets/_/Victoria/Player_Walk.png.meta
+guid: 73bf11cf959e97046b98a4ae58aef879
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -47,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
