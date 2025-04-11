@@ -7,6 +7,10 @@ using UnityEditor;
 
 public class EnemyController : MonoBehaviour
 {
+    [Header("Enemy Type")]
+    public enum EnemyType { Dinosaur, Ama, Lumen }
+    [SerializeField] private EnemyType enemyType = EnemyType.Dinosaur;
+
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float chaseSpeed = 4.5f;
@@ -72,6 +76,11 @@ public class EnemyController : MonoBehaviour
 
         animator = GetComponent<Animator>();
         if (animator == null) Debug.Log($"[{gameObject.name}] Animator component not found - animations will be disabled");
+        else
+        {
+            // Set the enemy type in the animator
+            animator.SetInteger("EnemyType", (int)enemyType);
+        }
 
         // Find the player
         playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
@@ -367,10 +376,8 @@ public class EnemyController : MonoBehaviour
         if (animator == null)
             return;
 
-        // Set animations based on state and movement
-        animator.SetBool("IsMoving", Mathf.Abs(moveDirection.x) > 0.1f);
-        animator.SetBool("IsChasing", currentState == EnemyState.Chasing);
-        animator.SetBool("IsAttacking", currentState == EnemyState.Attacking);
+        // Only set the enemy type parameter
+        animator.SetInteger("EnemyType", (int)enemyType);
     }
 
     // Adds a patrol point at the specified position
@@ -457,6 +464,35 @@ public class EnemyController : MonoBehaviour
         {
             Gizmos.color = attackRangeColor;
             Gizmos.DrawWireSphere(transform.position, attackRange);
+        }
+    }
+
+    // Public method to check if gun can shoot (useful for UI or other systems)
+    public bool CanShoot()
+    {
+        return canShoot;
+    }
+
+    // Public method to get cooldown progress (0 to 1, where 1 is ready to shoot)
+    public float GetCooldownProgress()
+    {
+        if (canShoot) return 1f;
+        return 1f - (cooldownTimer / cooldownTime);
+    }
+
+    // Public method to get the enemy type
+    public EnemyType GetEnemyType()
+    {
+        return enemyType;
+    }
+
+    // Public method to set the enemy type
+    public void SetEnemyType(EnemyType type)
+    {
+        enemyType = type;
+        if (animator != null)
+        {
+            animator.SetInteger("EnemyType", (int)enemyType);
         }
     }
 }
