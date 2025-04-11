@@ -185,11 +185,11 @@ public class EnemyController : MonoBehaviour
         // Flip sprite based on movement direction
         if (moveDirection.x > 0.1f)
         {
-            spriteRenderer.flipX = false;
+            spriteRenderer.flipX = true;
         }
         else if (moveDirection.x < -0.1f)
         {
-            spriteRenderer.flipX = true;
+            spriteRenderer.flipX = false;
         }
     }
 
