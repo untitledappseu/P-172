@@ -7,6 +7,12 @@ using UnityEditor;
 
 public class EnemyController : MonoBehaviour
 {
+    // Enemy Type enum definition
+    public enum EnemyType { Dinosaur, Ama, Lumen }
+
+    [Header("Enemy Type")]
+    [SerializeField] private EnemyType enemyType = EnemyType.Dinosaur;
+
     [Header("Movement Settings")]
     [SerializeField] private float moveSpeed = 3f;
     [SerializeField] private float chaseSpeed = 4.5f;
@@ -72,6 +78,11 @@ public class EnemyController : MonoBehaviour
 
         animator = GetComponent<Animator>();
         if (animator == null) Debug.Log($"[{gameObject.name}] Animator component not found - animations will be disabled");
+        else
+        {
+            // Set the enemy type in the animator
+            animator.SetInteger("EnemyType", (int)enemyType);
+        }
 
         // Find the player
         playerTransform = GameObject.FindGameObjectWithTag("Player")?.transform;
@@ -174,11 +185,11 @@ public class EnemyController : MonoBehaviour
         // Flip sprite based on movement direction
         if (moveDirection.x > 0.1f)
         {
-            spriteRenderer.flipX = false;
+            spriteRenderer.flipX = true;
         }
         else if (moveDirection.x < -0.1f)
         {
-            spriteRenderer.flipX = true;
+            spriteRenderer.flipX = false;
         }
     }
 
@@ -371,6 +382,9 @@ public class EnemyController : MonoBehaviour
         animator.SetBool("IsMoving", Mathf.Abs(moveDirection.x) > 0.1f);
         animator.SetBool("IsChasing", currentState == EnemyState.Chasing);
         animator.SetBool("IsAttacking", currentState == EnemyState.Attacking);
+
+        // Make sure the enemy type is set
+        animator.SetInteger("EnemyType", (int)enemyType);
     }
 
     // Adds a patrol point at the specified position
@@ -457,6 +471,22 @@ public class EnemyController : MonoBehaviour
         {
             Gizmos.color = attackRangeColor;
             Gizmos.DrawWireSphere(transform.position, attackRange);
+        }
+    }
+
+    // Public method to get the enemy type
+    public EnemyType GetEnemyType()
+    {
+        return enemyType;
+    }
+
+    // Public method to set the enemy type
+    public void SetEnemyType(EnemyType type)
+    {
+        enemyType = type;
+        if (animator != null)
+        {
+            animator.SetInteger("EnemyType", (int)enemyType);
         }
     }
 }

@@ -76,8 +76,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Sprite: {fileID: 21300000, guid: 8ebfbe281d983c64881cdb19cd0559d7, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -101,14 +101,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damage: 10
   hitEffect: {fileID: 8907717083926061240, guid: 730904193b1ac4124940368b962a41b0, type: 3}
-  shootSound: {fileID: 8300000, guid: 75ad240a6799e4e62b410b934c3f24ab, type: 3}
-  soundVolume: 20
-  impactSounds:
-  - {fileID: 8300000, guid: 655a16e84bf8f45059928dd6fa056163, type: 3}
-  - {fileID: 8300000, guid: a1ecd5c58528a43cb9760f2a47a008a0, type: 3}
-  - {fileID: 8300000, guid: 90a13382c5399475a90625a0254ec189, type: 3}
-  - {fileID: 8300000, guid: 79690687696d7458fa5ce7f5984b783e, type: 3}
-  impactSoundVolume: 1
+  shootSoundVolumeMultiplier: 1
+  impactSoundVolumeMultiplier: 1
 --- !u!50 &8209248039574814486
 Rigidbody2D:
   serializedVersion: 4
@@ -172,7 +166,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 1, y: 0.47}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

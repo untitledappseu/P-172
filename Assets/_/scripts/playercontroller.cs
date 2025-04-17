@@ -39,6 +39,12 @@ public class PlayerController : MonoBehaviour
     private readonly string isJumpingParam = "IsJumping";
     private readonly string isFallingParam = "IsFalling";
     private readonly string isSprintingParam = "IsSprinting";
+    private readonly string isShootingParam = "IsShooting";
+
+    // Shooting state
+    private bool isShooting = false;
+    private float shootAnimationDuration = 0.5f;
+    private float shootAnimationTimer = 0f;
 
     private void Awake()
     {
@@ -81,6 +87,23 @@ public class PlayerController : MonoBehaviour
         // Get input
         horizontalInput = Input.GetAxisRaw("Horizontal");
         isSprinting = Input.GetKey(KeyCode.LeftShift);
+
+        // Check for shooting input
+        if (Input.GetMouseButtonDown(0))
+        {
+            isShooting = true;
+            shootAnimationTimer = shootAnimationDuration;
+        }
+
+        // Handle shooting animation timer
+        if (isShooting)
+        {
+            shootAnimationTimer -= Time.deltaTime;
+            if (shootAnimationTimer <= 0)
+            {
+                isShooting = false;
+            }
+        }
 
         // Store previous ground state
         wasGrounded = isGrounded;
@@ -195,6 +218,9 @@ public class PlayerController : MonoBehaviour
 
             // Set falling animation
             animator.SetBool(isFallingParam, !isGrounded && rb.velocity.y < 0);
+
+            // Set shooting animation
+            animator.SetBool(isShootingParam, isShooting);
         }
     }
 

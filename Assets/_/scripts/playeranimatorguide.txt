@@ -1,0 +1,89 @@
+# Player Animator Setup Guide
+
+This guide explains how to set up the Player Animator with idle, walking, and shooting animations.
+
+## Step 1: Create Animation Clips
+
+First, create the following animation clips:
+- Idle.anim: Default player idle animation
+- Walking.anim: Player walking animation
+- Shooting.anim: Player shooting animation
+
+## Step 2: Create Animator Controller
+
+1. Right-click in the Project panel
+2. Select Create > Animator Controller
+3. Name it "PlayerAnimator"
+
+## Step 3: Set Up Animator Parameters
+
+1. Open the Animator window (Window > Animation > Animator)
+2. Select the PlayerAnimator controller
+3. In the Parameters tab, add two Boolean parameters:
+   - IsRunning: Controls walking animation
+   - IsShooting: Controls shooting animation
+
+## Step 4: Create Animation States
+
+1. In the Animator window, right-click in the graph area
+2. Create 3 states:
+   - Idle: Set this as the default state
+   - Walking: For moving horizontally
+   - Shooting: For when the player shoots
+
+3. Assign the corresponding animation clips to each state:
+   - Idle state → Idle.anim
+   - Walking state → Walking.anim
+   - Shooting state → Shooting.anim
+
+## Step 5: Set Up Transitions
+
+Create the following transitions:
+
+1. Idle to Walking:
+   - Right-click on Idle, select "Make Transition" and click on Walking
+   - In the Inspector, set the condition: IsRunning = true
+   - Adjust transition settings (duration, exit time) as needed
+
+2. Walking to Idle:
+   - Right-click on Walking, select "Make Transition" and click on Idle
+   - In the Inspector, set the condition: IsRunning = false
+   - Adjust transition settings as needed
+
+3. Idle to Shooting:
+   - Right-click on Idle, select "Make Transition" and click on Shooting
+   - In the Inspector, set the condition: IsShooting = true
+   - Adjust transition settings as needed
+
+4. Walking to Shooting:
+   - Right-click on Walking, select "Make Transition" and click on Shooting
+   - In the Inspector, set the condition: IsShooting = true
+   - Adjust transition settings as needed
+
+5. Shooting to Idle:
+   - Right-click on Shooting, select "Make Transition" and click on Idle
+   - In the Inspector, set two conditions:
+     - IsShooting = false
+     - IsRunning = false
+   - Adjust transition settings as needed
+
+6. Shooting to Walking:
+   - Right-click on Shooting, select "Make Transition" and click on Walking
+   - In the Inspector, set two conditions:
+     - IsShooting = false
+     - IsRunning = true
+   - Adjust transition settings as needed
+
+## Step 6: Assign to Player
+
+1. Select your player GameObject
+2. In the Inspector, make sure it has an Animator component
+3. Drag the PlayerAnimator controller to the "Controller" field
+
+## Testing
+
+The PlayerController script automatically sets the animation parameters based on player input:
+- IsRunning: Set when horizontal movement keys are pressed
+- IsShooting: Set when the mouse button is clicked
+
+You can also use the PlayerAnimationTester script to test the animations manually.
